@@ -7,8 +7,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.woocommerce.android.R
 import com.woocommerce.android.di.GlideApp
+import com.woocommerce.android.ui.orders.detail.OrderDetailProductItemViewState
+import com.woocommerce.android.util.toVisibility
 import kotlinx.android.synthetic.main.order_detail_product_item.view.*
-import org.wordpress.android.fluxc.model.WCOrderModel
 import org.wordpress.android.util.PhotonUtils
 import java.text.NumberFormat
 
@@ -20,53 +21,25 @@ class OrderDetailProductItemView @JvmOverloads constructor(
         View.inflate(context, R.layout.order_detail_product_item, this)
     }
 
-    fun initView(
-        item: WCOrderModel.LineItem,
-        productImage: String?,
-        expanded: Boolean,
-        formatCurrencyForDisplay: (String?) -> String
-    ) {
-        productInfo_name.text = item.name
+    fun initView(viewState: OrderDetailProductItemViewState) {
+        productInfo_name.text = viewState.name
 
-        val numberFormatter = NumberFormat.getNumberInstance().apply {
-            maximumFractionDigits = 2
-        }
-        productInfo_qty.text = numberFormatter.format(item.quantity)
+        productInfo_qty.text = viewState.quantity
 
         // Modify views for expanded or collapsed mode
-        val viewMode = if (expanded) View.VISIBLE else View.GONE
-        productInfo_productTotal.visibility = viewMode
-        productInfo_totalTax.visibility = viewMode
-        productInfo_lblTax.visibility = viewMode
-        productInfo_name.setSingleLine(!expanded)
+        productInfo_productTotal.visibility = viewState.isExpanded.toVisibility()
+        productInfo_totalTax.visibility = viewState.isExpanded.toVisibility()
+        productInfo_lblTax.visibility = viewState.isExpanded.toVisibility()
+        productInfo_name.setSingleLine(!viewState.isExpanded)
 
-        if (item.sku.isNullOrEmpty() || !expanded) {
-            productInfo_lblSku.visibility = View.GONE
-            productInfo_sku.visibility = View.GONE
-        } else {
-            productInfo_lblSku.visibility = View.VISIBLE
-            productInfo_sku.visibility = View.VISIBLE
-            productInfo_sku.text = item.sku
-        }
+        productInfo_lblSku.visibility = viewState.isSkuVisible.toVisibility()
+        productInfo_sku.visibility = viewState.isSkuVisible.toVisibility()
+        productInfo_sku.text = viewState.sku
 
-        if (expanded) {
+        if (viewState.isExpanded) {
             // Populate formatted total and tax values
-            val res = context.resources
-            val orderTotal = formatCurrencyForDisplay(item.total)
-            val productPrice = formatCurrencyForDisplay(item.price)
-
-            item.quantity?.takeIf { it > 1 }?.let {
-                val itemQty = numberFormatter.format(it)
-                productInfo_productTotal.text = res.getString(
-                        R.string.orderdetail_product_lineitem_total_multiple, orderTotal, productPrice, itemQty
-                )
-            } ?: run {
-                productInfo_productTotal.text = res.getString(
-                        R.string.orderdetail_product_lineitem_total_single, orderTotal
-                )
-            }
-
-            productInfo_totalTax.text = formatCurrencyForDisplay(item.totalTax)
+            productInfo_productTotal.text = viewState.total
+            productInfo_totalTax.text = viewState.total
         } else {
             // vertically center the product name and quantity since they're the only text showing
             val set = ConstraintSet()
@@ -76,7 +49,7 @@ class OrderDetailProductItemView @JvmOverloads constructor(
             set.applyTo(this)
         }
 
-        productImage?.let {
+        viewState.imageUrl?.let {
             val imageSize = context.resources.getDimensionPixelSize(R.dimen.product_icon_sz)
             val imageUrl = PhotonUtils.getPhotonImageUrl(it, imageSize, imageSize)
             GlideApp.with(context)

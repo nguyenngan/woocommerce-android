@@ -18,11 +18,13 @@ import com.woocommerce.android.analytics.AnalyticsTracker.Stat.ORDER_FULFILLMENT
 import com.woocommerce.android.analytics.AnalyticsTracker.Stat.ORDER_FULFILLMENT_TRACKING_DELETE_BUTTON_TAPPED
 import com.woocommerce.android.extensions.onScrollDown
 import com.woocommerce.android.extensions.onScrollUp
+import com.woocommerce.android.model.order.toAppModel
 import com.woocommerce.android.tools.NetworkStatus
 import com.woocommerce.android.tools.ProductImageMap
 import com.woocommerce.android.ui.base.BaseFragment
 import com.woocommerce.android.ui.base.UIMessageResolver
 import com.woocommerce.android.ui.main.MainNavigationRouter
+import com.woocommerce.android.ui.orders.detail.ProductListViewStateProvider
 import com.woocommerce.android.util.CurrencyFormatter
 import com.woocommerce.android.util.WooAnimUtils
 import com.woocommerce.android.widgets.AppRatingDialog
@@ -38,6 +40,7 @@ class OrderFulfillmentFragment : BaseFragment(), OrderFulfillmentContract.View, 
     @Inject lateinit var currencyFormatter: CurrencyFormatter
     @Inject lateinit var productImageMap: ProductImageMap
     @Inject lateinit var networkStatus: NetworkStatus
+    @Inject lateinit var productListViewStateProvider: ProductListViewStateProvider
 
     /**
      * Keep track of the deleted [WCOrderShipmentTrackingModel] in case
@@ -101,12 +104,12 @@ class OrderFulfillmentFragment : BaseFragment(), OrderFulfillmentContract.View, 
     override fun showOrderDetail(order: WCOrderModel) {
         // Populate the Order Product List Card
         orderFulfill_products.initView(
-                order = order,
-                productImageMap = productImageMap,
-                expanded = true,
-                formatCurrencyForDisplay = currencyFormatter.buildFormatter(order.currency),
-                orderListener = null,
-                productListener = this
+                    productListViewStateProvider.provide(
+                            order.toAppModel(),
+                            isExpanded = true,
+                            hideAllButtons = true
+                    ),
+                    productListener = this
         )
 
         // Check for customer provided note, show if available

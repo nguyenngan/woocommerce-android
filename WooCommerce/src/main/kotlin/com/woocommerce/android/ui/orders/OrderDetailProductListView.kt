@@ -11,14 +11,15 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.woocommerce.android.R
 import com.woocommerce.android.analytics.AnalyticsTracker
-import com.woocommerce.android.analytics.AnalyticsTracker.Stat
+import com.woocommerce.android.analytics.AnalyticsTracker.Stat.ORDER_DETAIL_FULFILL_ORDER_BUTTON_TAPPED
+import com.woocommerce.android.analytics.AnalyticsTracker.Stat.ORDER_DETAIL_PRODUCT_DETAIL_BUTTON_TAPPED
 import com.woocommerce.android.analytics.AnalyticsTracker.Stat.ORDER_DETAIL_PRODUCT_TAPPED
-import com.woocommerce.android.tools.ProductImageMap
+import com.woocommerce.android.ui.orders.detail.OrderDetailProductItemViewState
+import com.woocommerce.android.ui.orders.detail.ProductListViewState
 import com.woocommerce.android.ui.products.ProductHelper
+import com.woocommerce.android.util.toVisibility
 import com.woocommerce.android.widgets.AlignedDividerDecoration
 import kotlinx.android.synthetic.main.order_detail_product_list.view.*
-import org.wordpress.android.fluxc.model.WCOrderModel
-import org.wordpress.android.fluxc.network.rest.wpcom.wc.order.CoreOrderStatus
 
 class OrderDetailProductListView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
     : ConstraintLayout(ctx, attrs) {
@@ -27,27 +28,19 @@ class OrderDetailProductListView @JvmOverloads constructor(ctx: Context, attrs: 
     }
     private lateinit var divider: AlignedDividerDecoration
     private lateinit var viewAdapter: ProductListAdapter
-    private var isExpanded = false
 
     /**
      * Initialize and format this view.
      *
-     * @param [order] The order containing the product list to display.
-     * @param [expanded] If true, expanded view will be shown, else collapsed view.
-     * @param [formatCurrencyForDisplay] Function to use for formatting currencies for display.
-     * @param [orderListener] Listener for routing order click actions. If null, the buttons will be hidden.
+     * @param [viewState] The state information for displaying the product list.
      * @param [productListener] Listener for routing product click actions.
+     * @param [orderListener] Listener for routing order click actions. If null, the buttons will be hidden.
      */
     fun initView(
-        order: WCOrderModel,
-        productImageMap: ProductImageMap,
-        expanded: Boolean,
-        formatCurrencyForDisplay: (String?) -> String,
-        orderListener: OrderActionListener? = null,
-        productListener: OrderProductActionListener? = null
+        viewState: ProductListViewState,
+        productListener: OrderProductActionListener,
+        orderListener: OrderActionListener? = null
     ) {
-        isExpanded = expanded
-
         divider = AlignedDividerDecoration(context,
                 DividerItemDecoration.VERTICAL, R.id.productInfo_name, clipToMargin = false)
 
@@ -56,33 +49,9 @@ class OrderDetailProductListView @JvmOverloads constructor(ctx: Context, attrs: 
         }
 
         val viewManager = androidx.recyclerview.widget.LinearLayoutManager(context)
-        viewAdapter = ProductListAdapter(
-                order.getLineItemList(),
-                productImageMap,
-                formatCurrencyForDisplay,
-                isExpanded,
-                productListener
-        )
+        viewAdapter = ProductListAdapter(viewState.itemViewStates, productListener)
 
-        orderListener?.let {
-            if (order.status == CoreOrderStatus.PROCESSING.value) {
-                productList_btnFulfill.visibility = View.VISIBLE
-                productList_btnDetails.visibility = View.GONE
-                productList_btnDetails.setOnClickListener(null)
-                productList_btnFulfill.setOnClickListener {
-                    AnalyticsTracker.track(Stat.ORDER_DETAIL_FULFILL_ORDER_BUTTON_TAPPED)
-                    orderListener.openOrderFulfillment(order)
-                }
-            } else {
-                productList_btnFulfill.visibility = View.GONE
-                productList_btnDetails.visibility = View.VISIBLE
-                productList_btnDetails.setOnClickListener {
-                    AnalyticsTracker.track(Stat.ORDER_DETAIL_PRODUCT_DETAIL_BUTTON_TAPPED)
-                    orderListener.openOrderProductList(order)
-                }
-                productList_btnFulfill.setOnClickListener(null)
-            }
-        } ?: hideButtons()
+        setupListeners(viewState, orderListener)
 
         productList_products.apply {
             setHasFixedSize(false)
@@ -90,32 +59,28 @@ class OrderDetailProductListView @JvmOverloads constructor(ctx: Context, attrs: 
             itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator()
             adapter = viewAdapter
         }
-
-        if (isExpanded) {
-            productList_products.addItemDecoration(divider)
-        }
     }
 
-    fun updateView(order: WCOrderModel, listener: OrderActionListener? = null) {
-        listener?.let {
-            if (order.status == CoreOrderStatus.PROCESSING.value) {
-                productList_btnFulfill.visibility = View.VISIBLE
-                productList_btnDetails.visibility = View.GONE
-                productList_btnDetails.setOnClickListener(null)
-                productList_btnFulfill.setOnClickListener {
-                    listener.openOrderFulfillment(order)
-                }
-            } else {
-                productList_btnFulfill.visibility = View.GONE
-                productList_btnDetails.visibility = View.VISIBLE
-                productList_btnDetails.setOnClickListener {
-                    listener.openOrderProductList(order)
-                }
-                productList_btnFulfill.setOnClickListener(null)
-            }
-        } ?: hideButtons()
+    private fun setupListeners(
+        viewState: ProductListViewState,
+        orderListener: OrderActionListener?
+    ) {
+        productList_btnFulfill.visibility = viewState.isFulfillButtonVisible.toVisibility()
+        productList_btnDetails.visibility = viewState.isDetailsButtonVisible.toVisibility()
 
-        if (isExpanded) {
+        orderListener?.let { listener ->
+            productList_btnFulfill.setOnClickListener {
+                AnalyticsTracker.track(ORDER_DETAIL_FULFILL_ORDER_BUTTON_TAPPED)
+                listener.openOrderFulfillment(viewState.orderNumber, viewState.orderIdentifier)
+            }
+
+            productList_btnDetails.setOnClickListener {
+                AnalyticsTracker.track(ORDER_DETAIL_PRODUCT_DETAIL_BUTTON_TAPPED)
+                listener.openOrderProductList(viewState.orderNumber, viewState.orderIdentifier)
+            }
+        }
+
+        if (viewState.isExpanded) {
             productList_products.addItemDecoration(divider)
         }
     }
@@ -127,19 +92,9 @@ class OrderDetailProductListView @JvmOverloads constructor(ctx: Context, attrs: 
         }
     }
 
-    private fun hideButtons() {
-        productList_btnFulfill.setOnClickListener(null)
-        productList_btnDetails.setOnClickListener(null)
-        productList_btnFulfill.visibility = View.GONE
-        productList_btnDetails.visibility = View.GONE
-    }
-
     class ProductListAdapter(
-        private val orderItems: List<WCOrderModel.LineItem>,
-        private val productImageMap: ProductImageMap,
-        private val formatCurrencyForDisplay: (String?) -> String,
-        private var isExpanded: Boolean,
-        private val productListener: OrderProductActionListener?
+        private val orderItems: List<OrderDetailProductItemViewState>,
+        private val productListener: OrderProductActionListener
     ) : RecyclerView.Adapter<ProductListAdapter.ViewHolder>() {
         class ViewHolder(val view: OrderDetailProductItemView) : RecyclerView.ViewHolder(view)
 
@@ -153,11 +108,10 @@ class OrderDetailProductListView @JvmOverloads constructor(ctx: Context, attrs: 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = orderItems[position]
             val productId = ProductHelper.productOrVariationId(item.productId, item.variationId)
-            val productImage = productImageMap.get(productId)
-            holder.view.initView(orderItems[position], productImage, isExpanded, formatCurrencyForDisplay)
+            holder.view.initView(orderItems[position])
             holder.view.setOnClickListener {
                 AnalyticsTracker.track(ORDER_DETAIL_PRODUCT_TAPPED)
-                productListener?.openOrderProductDetail(productId)
+                productListener.openOrderProductDetail(productId)
             }
         }
 

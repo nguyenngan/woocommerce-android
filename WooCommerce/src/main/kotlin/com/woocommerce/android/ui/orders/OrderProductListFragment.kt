@@ -11,9 +11,11 @@ import com.woocommerce.android.R
 import com.woocommerce.android.analytics.AnalyticsTracker
 import com.woocommerce.android.extensions.onScrollDown
 import com.woocommerce.android.extensions.onScrollUp
+import com.woocommerce.android.model.order.toAppModel
 import com.woocommerce.android.tools.ProductImageMap
 import com.woocommerce.android.ui.base.BaseFragment
 import com.woocommerce.android.ui.main.MainNavigationRouter
+import com.woocommerce.android.ui.orders.detail.ProductListViewStateProvider
 import com.woocommerce.android.util.CurrencyFormatter
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_order_product_list.*
@@ -25,6 +27,7 @@ class OrderProductListFragment : BaseFragment(), OrderProductListContract.View {
     @Inject lateinit var presenter: OrderProductListContract.Presenter
     @Inject lateinit var currencyFormatter: CurrencyFormatter
     @Inject lateinit var productImageMap: ProductImageMap
+    @Inject lateinit var productListViewStateProvider: ProductListViewStateProvider
 
     private val navArgs: OrderProductListFragmentArgs by navArgs()
 
@@ -64,11 +67,11 @@ class OrderProductListFragment : BaseFragment(), OrderProductListContract.View {
 
     override fun showOrderProducts(order: WCOrderModel) {
         orderProducts_list.initView(
-                order = order,
-                productImageMap = productImageMap,
-                expanded = true,
-                formatCurrencyForDisplay = currencyFormatter.buildFormatter(order.currency),
-                orderListener = null,
+                productListViewStateProvider.provide(
+                        order.toAppModel(),
+                        isExpanded = true,
+                        hideAllButtons = true
+                ),
                 productListener = this
         )
     }

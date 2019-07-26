@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -40,6 +39,7 @@ import kotlinx.android.synthetic.main.fragment_order_detail.*
 import org.wordpress.android.fluxc.model.WCOrderModel
 import org.wordpress.android.fluxc.model.WCOrderNoteModel
 import org.wordpress.android.fluxc.model.WCOrderShipmentTrackingModel
+import org.wordpress.android.fluxc.model.order.OrderIdentifier
 import org.wordpress.android.fluxc.network.rest.wpcom.wc.order.CoreOrderStatus
 import javax.inject.Inject
 
@@ -102,9 +102,6 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val nonNullActivity = checkNotNull(activity)
-
-//        initializeViews(savedInstanceState)
         initializeViewModels()
     }
 
@@ -116,7 +113,11 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
 
     private fun setupObservers() {
         viewModel.paymentInfoData.observe(this, Observer {
-            orderDetail_paymentInfo.updateView(it)
+            orderDetail_paymentInfo.initView(it)
+        })
+
+        viewModel.productListData.observe(this, Observer {
+            orderDetail_productList.initView(it, this, this)
         })
     }
 
@@ -235,14 +236,7 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
             }
 
             // Populate the Order Product List Card
-            orderDetail_productList.initView(
-                    order = order,
-                    productImageMap = productImageMap,
-                    expanded = false,
-                    formatCurrencyForDisplay = currencyFormatter.buildFormatter(order.currency),
-                    orderListener = this,
-                    productListener = this
-            )
+            viewModel.updateProductList(it.toAppModel(), isExpanded = false)
 
             // check if product is a virtual product. If it is, hide only the shipping details card
             orderDetail_customerInfo.initView(
@@ -305,19 +299,19 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
         orderDetail_noteList.updateView(notes)
     }
 
-    override fun openOrderFulfillment(order: WCOrderModel) {
+    override fun openOrderFulfillment(orderNumber: String, orderIdentifier: OrderIdentifier) {
         val action = OrderDetailFragmentDirections.actionOrderDetailFragmentToOrderFulfillmentFragment(
-                order.getIdentifier(),
-                order.number,
+                orderIdentifier,
+                orderNumber,
                 presenter.isShipmentTrackingsFetched
         )
         findNavController().navigate(action)
     }
 
-    override fun openOrderProductList(order: WCOrderModel) {
+    override fun openOrderProductList(orderNumber: String, orderIdentifier: OrderIdentifier) {
         val action = OrderDetailFragmentDirections.actionOrderDetailFragmentToOrderProductListFragment(
-                order.getIdentifier(),
-                order.number
+                orderIdentifier,
+                orderNumber
         )
         findNavController().navigate(action)
     }
@@ -329,9 +323,9 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
     override fun setOrderStatus(newStatus: String) {
         val orderStatus = presenter.getOrderStatusForStatusKey(newStatus)
         orderDetail_orderStatus.updateStatus(orderStatus)
-        presenter.orderModel?.let {
-            orderDetail_productList.updateView(it, this)
-            viewModel.updatePaymentInfo(it.toAppModel())
+        presenter.orderModel?.toAppModel()?.let {
+            viewModel.updateProductList(it)
+            viewModel.updatePaymentInfo(it)
         }
     }
 
