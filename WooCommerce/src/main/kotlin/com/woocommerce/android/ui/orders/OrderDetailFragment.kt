@@ -230,12 +230,9 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
 
             // Populate the Order Status Card
             val orderStatus = presenter.getOrderStatusForStatusKey(order.status)
-            orderDetail_orderStatus
-                    .initView(order, orderStatus, object : OrderDetailOrderStatusView.OrderStatusListener {
-                        override fun openOrderStatusSelector() {
-                            showOrderStatusSelector()
-                        }
-                    })
+            orderDetail_orderStatus.initView(order.toAppModel(), orderStatus) {
+                showOrderStatusSelector()
+            }
 
             // Populate the Order Product List Card
             orderDetail_productList.initView(

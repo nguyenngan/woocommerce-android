@@ -8,6 +8,7 @@ import android.widget.RelativeLayout
 import com.woocommerce.android.R
 import com.woocommerce.android.analytics.AnalyticsTracker
 import com.woocommerce.android.analytics.AnalyticsTracker.Stat
+import com.woocommerce.android.model.order.Order
 import com.woocommerce.android.util.DateUtils
 import com.woocommerce.android.widgets.tags.TagView
 import kotlinx.android.synthetic.main.order_detail_order_status.view.*
@@ -20,14 +21,10 @@ class OrderDetailOrderStatusView @JvmOverloads constructor(ctx: Context, attrs: 
         View.inflate(context, R.layout.order_detail_order_status, this)
     }
 
-    interface OrderStatusListener {
-        fun openOrderStatusSelector()
-    }
-
-    fun initView(orderModel: WCOrderModel, orderStatus: WCOrderStatusModel, listener: OrderStatusListener) {
+    fun initView(orderModel: Order, orderStatus: WCOrderStatusModel, openOrderStatusSelector: () -> Unit) {
         orderStatus_orderNum.text = context.getString(
                 R.string.orderdetail_orderstatus_heading,
-                orderModel.number, orderModel.billingFirstName, orderModel.billingLastName)
+                orderModel.number, orderModel.billingAddress.firstName, orderModel.billingAddress.lastName)
         val dateStr = DateUtils.getFriendlyShortDateAtTimeString(context, orderModel.dateCreated)
         orderStatus_created.text = context.getString(R.string.orderdetail_orderstatus_created, dateStr)
         orderStatus_orderTags.removeAllViews()
@@ -36,7 +33,7 @@ class OrderDetailOrderStatusView @JvmOverloads constructor(ctx: Context, attrs: 
         orderStatus_edit.setOnClickListener {
             AnalyticsTracker.track(
                     Stat.ORDER_DETAIL_ORDER_STATUS_EDIT_BUTTON_TAPPED, mapOf("status" to orderModel.status))
-            listener.openOrderStatusSelector()
+            openOrderStatusSelector()
         }
     }
 
