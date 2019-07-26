@@ -1,25 +1,20 @@
 package com.woocommerce.android.ui.orders.detail
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.os.Parcelable
 import com.woocommerce.android.R
-import com.woocommerce.android.di.ActivityScope
 import com.woocommerce.android.model.order.Order
 import com.woocommerce.android.util.CurrencyFormatter
 import com.woocommerce.android.viewmodel.utility.ResourceProvider
+import kotlinx.android.parcel.Parcelize
 import org.wordpress.android.fluxc.network.rest.wpcom.wc.order.CoreOrderStatus
 import java.math.BigDecimal
 import javax.inject.Inject
 
-@ActivityScope
-class OrderDetailPaymentViewModel @Inject constructor(
+class OrderDetailPaymentViewStateProvider @Inject constructor(
     private val resourceProvider: ResourceProvider,
-    val currencyFormatter: CurrencyFormatter
+    private val currencyFormatter: CurrencyFormatter
 ) {
-    private val _data = MutableLiveData<OrderDetailPaymentViewState>()
-    val data: LiveData<OrderDetailPaymentViewState> = _data
-
-    fun update(order: Order) {
+    fun provide(order: Order): OrderDetailPaymentViewState {
         val formatCurrencyForDisplay = currencyFormatter.buildBigDecimalFormatter(order.currency)
 
         // Populate or hide payment message
@@ -63,7 +58,7 @@ class OrderDetailPaymentViewModel @Inject constructor(
             discountItems = resourceProvider.getString(R.string.orderdetail_discount_items, order.discountCodes)
         }
 
-        val viewState = OrderDetailPaymentViewState(
+        return OrderDetailPaymentViewState(
                 title,
                 formatCurrencyForDisplay(order.items.sumBy { it.subtotal.toInt() }.toBigDecimal()),
                 formatCurrencyForDisplay(order.shippingTotal),
@@ -78,7 +73,22 @@ class OrderDetailPaymentViewModel @Inject constructor(
                 discountTotal,
                 discountItems
         )
-
-        _data.value = viewState
     }
 }
+
+@Parcelize
+data class OrderDetailPaymentViewState(
+    val title: String,
+    val subtotal: String,
+    val shippingTotal: String,
+    val taxesTotal: String,
+    val total: String,
+    val refundTotal: String,
+    val isPaymentMessageVisible: Boolean,
+    val paymentMessage: String,
+    val isRefundSectionVisible: Boolean,
+    val totalAfterRefunds: String,
+    val isDiscountSectionVisible: Boolean,
+    val discountTotal: String,
+    val discountItems: String
+) : Parcelable

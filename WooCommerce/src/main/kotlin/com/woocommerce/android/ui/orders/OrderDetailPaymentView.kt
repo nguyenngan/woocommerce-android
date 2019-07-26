@@ -16,7 +16,7 @@ constructor(ctx: Context, attrs: AttributeSet? = null) : LinearLayout(ctx, attrs
         orientation = VERTICAL
     }
 
-    fun updateView(viewState: OrderDetailPaymentViewState) {
+    fun initView(viewState: OrderDetailPaymentViewState) {
         paymentInfo_subTotal.text = viewState.subtotal
         paymentInfo_shippingTotal.text = viewState.shippingTotal
         paymentInfo_taxesTotal.text = viewState.taxesTotal
