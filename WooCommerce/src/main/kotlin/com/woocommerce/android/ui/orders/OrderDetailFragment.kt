@@ -119,6 +119,42 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
         viewModel.productListData.observe(this, Observer {
             orderDetail_productList.initView(it, this, this)
         })
+
+        viewModel.orderStatus.observe(this, Observer {
+            // Populate the Order Status Card
+            orderDetail_orderStatus.initView(it.first, it.second) {
+                showOrderStatusSelector()
+            }
+        })
+
+        viewModel.order.observe(this, Observer { order ->
+            // set the title to the order number
+            updateActivityTitle()
+
+            // Populate the Order Product List Card
+            viewModel.updateProductList(order, isExpanded = false)
+
+//            // check if product is a virtual product. If it is, hide only the shipping details card
+//            orderDetail_customerInfo.initView(
+//                    order = order,
+//                    shippingOnly = false,
+//                    billingOnly = presenter.isVirtualProduct(order))
+
+            // Populate the Payment Information Card
+            viewModel.updatePaymentInfo(order)
+
+            // Check for customer note, show if available
+            if (order.customerNote.isEmpty()) {
+                orderDetail_customerNote.visibility = View.GONE
+            } else {
+                orderDetail_customerNote.visibility = View.VISIBLE
+                orderDetail_customerNote.initView(order.customerNote)
+            }
+
+//            if (isFreshData) {
+//                isRefreshPending = false
+//            }
+        })
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
