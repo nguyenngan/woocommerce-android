@@ -24,14 +24,12 @@ import com.woocommerce.android.extensions.onScrollDown
 import com.woocommerce.android.extensions.onScrollUp
 import com.woocommerce.android.model.order.toAppModel
 import com.woocommerce.android.tools.NetworkStatus
-import com.woocommerce.android.tools.ProductImageMap
 import com.woocommerce.android.ui.base.BaseFragment
 import com.woocommerce.android.ui.base.UIMessageResolver
 import com.woocommerce.android.ui.main.MainActivity
 import com.woocommerce.android.ui.main.MainNavigationRouter
 import com.woocommerce.android.ui.orders.OrderDetailOrderNoteListView.OrderDetailNoteListener
 import com.woocommerce.android.ui.orders.detail.OrderDetailViewModel
-import com.woocommerce.android.util.CurrencyFormatter
 import com.woocommerce.android.util.WooAnimUtils
 import com.woocommerce.android.widgets.SkeletonView
 import dagger.android.support.AndroidSupportInjection
@@ -54,8 +52,6 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
     @Inject lateinit var presenter: OrderDetailContract.Presenter
     @Inject lateinit var uiMessageResolver: UIMessageResolver
     @Inject lateinit var networkStatus: NetworkStatus
-    @Inject lateinit var currencyFormatter: CurrencyFormatter
-    @Inject lateinit var productImageMap: ProductImageMap
 
     private lateinit var viewModel: OrderDetailViewModel
 
@@ -288,7 +284,7 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
                 orderDetail_customerNote.visibility = View.GONE
             } else {
                 orderDetail_customerNote.visibility = View.VISIBLE
-                orderDetail_customerNote.initView(order)
+                orderDetail_customerNote.initView(order.toAppModel().customerNote)
             }
 
             if (isFreshData) {
