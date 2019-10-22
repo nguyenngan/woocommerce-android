@@ -12,8 +12,8 @@ buildscript {
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-allopen'
 apply plugin: 'se.bjurr.violations.violation-comments-to-github-gradle-plugin'
 apply plugin: 'io.sentry.android.gradle'
@@ -31,10 +31,11 @@ repositories {
     mavenCentral()
     maven { url "https://jitpack.io" }
     maven { url "https://dl.bintray.com/wordpress-mobile/maven" }
+    google()
 }
 
 androidExtensions {
-    experimental = true
+    features = ["parcelize"]
 }
 
 android {
@@ -93,6 +94,11 @@ android {
         test.java.srcDirs += 'src/test/kotlin'
         androidTest.java.srcDirs += 'src/androidTest/kotlin'
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -100,8 +106,6 @@ dependencies {
     implementation("org.wordpress:libaddressinput.common:$libaddressinputVersion") {
         exclude group: "org.json", module: "json"
     }
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 
     implementation 'com.google.firebase:firebase-messaging:17.0.0'
     implementation 'com.google.android.gms:play-services-auth:15.0.1'
@@ -193,7 +197,7 @@ dependencies {
     kaptAndroidTest "com.google.dagger:dagger-compiler:$daggerVersion"
 
     // Resolve conflicts between main and test APK
-    androidTestImplementation "androidx.annotation:annotation:1.0.0"
+    androidTestImplementation "androidx.annotation:annotation:1.1.0"
     androidTestImplementation "com.google.code.findbugs:jsr305:2.0.1"
 
     implementation(group: 'com.zendesk', name: 'support', version: '3.0.1') {
