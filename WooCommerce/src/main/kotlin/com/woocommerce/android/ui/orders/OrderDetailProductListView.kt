@@ -20,8 +20,10 @@ import kotlinx.android.synthetic.main.order_detail_product_list.view.*
 import org.wordpress.android.fluxc.model.WCOrderModel
 import org.wordpress.android.fluxc.network.rest.wpcom.wc.order.CoreOrderStatus
 
-class OrderDetailProductListView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : ConstraintLayout(ctx, attrs) {
+class OrderDetailProductListView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : ConstraintLayout(ctx, attrs) {
     init {
         View.inflate(context, R.layout.order_detail_product_list, this)
     }

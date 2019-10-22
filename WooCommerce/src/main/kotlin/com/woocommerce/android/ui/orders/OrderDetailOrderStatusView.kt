@@ -14,8 +14,10 @@ import kotlinx.android.synthetic.main.order_detail_order_status.view.*
 import org.wordpress.android.fluxc.model.WCOrderModel
 import org.wordpress.android.fluxc.model.WCOrderStatusModel
 
-class OrderDetailOrderStatusView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : RelativeLayout(ctx, attrs) {
+class OrderDetailOrderStatusView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : RelativeLayout(ctx, attrs) {
     init {
         View.inflate(context, R.layout.order_detail_order_status, this)
     }

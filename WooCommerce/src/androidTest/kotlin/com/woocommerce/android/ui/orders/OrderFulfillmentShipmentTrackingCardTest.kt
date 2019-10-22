@@ -218,7 +218,7 @@ class OrderFulfillmentShipmentTrackingCardTest : TestBase() {
         doAnswer {
             (orderFulfillmentFragment?.presenter as? OrderFulfillmentPresenter)
                     ?.onOrderChanged(onOrderChangedSuccessResponse)
-        }. whenever(orderFulfillmentFragment?.presenter)?.deleteOrderShipmentTracking(any())
+        }.whenever(orderFulfillmentFragment?.presenter)?.deleteOrderShipmentTracking(any())
 
         // TODO: find an alternate solution for this
         Thread.sleep(5000)
@@ -253,7 +253,7 @@ class OrderFulfillmentShipmentTrackingCardTest : TestBase() {
         doAnswer {
             (orderFulfillmentFragment?.presenter as? OrderFulfillmentPresenter)
                     ?.onOrderChanged(onOrderChangedErrorResponse)
-        }. whenever(orderFulfillmentFragment?.presenter)?.deleteOrderShipmentTracking(any())
+        }.whenever(orderFulfillmentFragment?.presenter)?.deleteOrderShipmentTracking(any())
 
         // TODO: find an alternate solution for this
         Thread.sleep(5000)

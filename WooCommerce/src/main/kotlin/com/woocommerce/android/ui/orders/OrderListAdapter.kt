@@ -27,8 +27,7 @@ import javax.inject.Inject
 class OrderListAdapter @Inject constructor(
     val listener: OrderListListener,
     val currencyFormatter: CurrencyFormatter
-)
-    : SectionedRecyclerViewAdapter() {
+) : SectionedRecyclerViewAdapter() {
     interface OnLoadMoreListener {
         fun onRequestLoadMore()
     }

@@ -19,8 +19,10 @@ import com.woocommerce.android.widgets.AppRatingDialog
 import kotlinx.android.synthetic.main.order_detail_customer_info.view.*
 import org.wordpress.android.fluxc.model.WCOrderModel
 
-class OrderDetailCustomerInfoView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : ConstraintLayout(ctx, attrs) {
+class OrderDetailCustomerInfoView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : ConstraintLayout(ctx, attrs) {
     init {
         View.inflate(context, R.layout.order_detail_customer_info, this)
     }

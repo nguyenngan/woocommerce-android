@@ -26,8 +26,10 @@ import org.wordpress.android.fluxc.store.WCStatsStore.StatsGranularity
 import org.wordpress.android.util.FormatUtils
 import org.wordpress.android.util.PhotonUtils
 
-class MyStoreTopEarnersView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : LinearLayout(ctx, attrs) {
+class MyStoreTopEarnersView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : LinearLayout(ctx, attrs) {
     init {
         View.inflate(context, R.layout.my_store_top_earners, this)
     }

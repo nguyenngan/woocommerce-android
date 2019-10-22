@@ -14,8 +14,10 @@ import kotlinx.android.synthetic.main.my_store_date_bar.view.*
 import org.wordpress.android.fluxc.model.WCRevenueStatsModel
 import org.wordpress.android.fluxc.store.WCStatsStore.StatsGranularity
 
-class MyStoreDateRangeView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : LinearLayout(ctx, attrs) {
+class MyStoreDateRangeView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : LinearLayout(ctx, attrs) {
     init {
         View.inflate(context, R.layout.my_store_date_bar, this)
     }

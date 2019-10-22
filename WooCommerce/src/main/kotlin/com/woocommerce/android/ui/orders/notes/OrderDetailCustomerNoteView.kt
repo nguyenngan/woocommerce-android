@@ -8,8 +8,10 @@ import com.woocommerce.android.R
 import kotlinx.android.synthetic.main.order_detail_customer_note.view.*
 import org.wordpress.android.fluxc.model.WCOrderModel
 
-class OrderDetailCustomerNoteView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : ConstraintLayout(ctx, attrs) {
+class OrderDetailCustomerNoteView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : ConstraintLayout(ctx, attrs) {
     init {
         View.inflate(context, R.layout.order_detail_customer_note, this)
     }

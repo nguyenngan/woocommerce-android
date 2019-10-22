@@ -17,8 +17,10 @@ import org.wordpress.android.fluxc.model.SiteModel
 import org.wordpress.android.fluxc.model.WCOrderModel
 import org.wordpress.android.fluxc.model.WCOrderStatusModel
 
-class OrderListView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : LinearLayout(ctx, attrs) {
+class OrderListView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : LinearLayout(ctx, attrs) {
     init {
         View.inflate(context, R.layout.order_list_view, this)
     }

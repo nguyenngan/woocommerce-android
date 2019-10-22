@@ -19,8 +19,10 @@ import com.woocommerce.android.util.getDensityPixel
  * @attr ref com.woocommerce.android.R.styleable#tagColor
  * @attr ref com.woocommerce.android.R.styleable#tagBorderColor
  */
-class TagView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : AppCompatTextView(ctx, attrs, R.attr.tagViewStyle) {
+class TagView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : AppCompatTextView(ctx, attrs, R.attr.tagViewStyle) {
     init {
         if (attrs != null) {
             val a = context.obtainStyledAttributes(attrs, R.styleable.TagView, R.attr.tagViewStyle, 0)

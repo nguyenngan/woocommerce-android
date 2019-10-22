@@ -17,8 +17,10 @@ import kotlinx.android.synthetic.main.order_detail_payment_info.view.*
 import org.wordpress.android.fluxc.network.rest.wpcom.wc.order.CoreOrderStatus
 import java.math.BigDecimal
 
-class OrderDetailPaymentView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : LinearLayout(ctx, attrs) {
+class OrderDetailPaymentView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : LinearLayout(ctx, attrs) {
     private lateinit var formatCurrency: (BigDecimal) -> String
     private lateinit var actionListener: OrderRefundActionListener
     private lateinit var order: Order

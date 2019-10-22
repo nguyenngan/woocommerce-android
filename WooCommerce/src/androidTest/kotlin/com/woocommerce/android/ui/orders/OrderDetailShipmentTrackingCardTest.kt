@@ -398,7 +398,7 @@ class OrderDetailShipmentTrackingCardTest : TestBase() {
         }
         doAnswer {
             (orderDetailFragment?.presenter as? OrderDetailPresenter)?.onOrderChanged(onOrderChangedSuccessResponse)
-        }. whenever(orderDetailFragment?.presenter)?.deleteOrderShipmentTracking(any())
+        }.whenever(orderDetailFragment?.presenter)?.deleteOrderShipmentTracking(any())
 
         // TODO: find an alternate solution for this
         Thread.sleep(5000)
@@ -444,7 +444,7 @@ class OrderDetailShipmentTrackingCardTest : TestBase() {
         }
         doAnswer {
             (orderDetailFragment?.presenter as? OrderDetailPresenter)?.onOrderChanged(onOrderChangedErrorResponse)
-        }. whenever(orderDetailFragment?.presenter)?.deleteOrderShipmentTracking(any())
+        }.whenever(orderDetailFragment?.presenter)?.deleteOrderShipmentTracking(any())
 
         // TODO: find an alternate solution for this
         Thread.sleep(5000)

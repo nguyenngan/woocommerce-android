@@ -45,8 +45,10 @@ import java.util.ArrayList
 import java.util.Date
 import kotlin.math.round
 
-class MyStoreStatsView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : LinearLayout(ctx, attrs), OnChartValueSelectedListener, BarChartGestureListener {
+class MyStoreStatsView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : LinearLayout(ctx, attrs), OnChartValueSelectedListener, BarChartGestureListener {
     init {
         View.inflate(context, R.layout.my_store_stats, this)
     }

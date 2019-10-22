@@ -10,8 +10,10 @@ import com.woocommerce.android.analytics.AnalyticsTracker.Stat
 import com.woocommerce.android.util.WooAnimUtils
 import kotlinx.android.synthetic.main.my_store_stats_availability_notice.view.*
 
-class MyStoreStatsAvailabilityCard @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : LinearLayout(ctx, attrs) {
+class MyStoreStatsAvailabilityCard @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : LinearLayout(ctx, attrs) {
     init {
         View.inflate(context, R.layout.my_store_stats_availability_notice, this)
     }

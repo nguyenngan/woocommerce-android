@@ -25,9 +25,9 @@ class DashboardStatsMarkerView(context: Context, layoutResource: Int) : MarkerVi
         val paddingSm = resources.getDimensionPixelSize(R.dimen.margin_small)
         val textSz = resources.getDimensionPixelSize(R.dimen.text_small)
         markerImage.minimumHeight =
-                (paddingMed * 4) +  // padding around text
-                (textSz * 2) +      // size of two lines of text
-                paddingSm           // extra padding for bubble
+                (paddingMed * 4) + // padding around text
+                (textSz * 2) + // size of two lines of text
+                paddingSm // extra padding for bubble
     }
 
     override fun refreshContent(entry: Entry, highlight: Highlight) {

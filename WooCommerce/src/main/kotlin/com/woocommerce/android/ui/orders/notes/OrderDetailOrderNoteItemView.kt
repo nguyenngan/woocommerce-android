@@ -14,8 +14,10 @@ import com.woocommerce.android.R
 import com.woocommerce.android.model.OrderNote
 import kotlinx.android.synthetic.main.order_detail_note_item.view.*
 
-class OrderDetailOrderNoteItemView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : ConstraintLayout(ctx, attrs) {
+class OrderDetailOrderNoteItemView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : ConstraintLayout(ctx, attrs) {
     init {
         View.inflate(context, R.layout.order_detail_note_item, this)
     }

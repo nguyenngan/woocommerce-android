@@ -46,8 +46,10 @@ import java.io.Serializable
 import java.util.ArrayList
 import java.util.Date
 
-class DashboardStatsView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : LinearLayout(ctx, attrs), OnChartValueSelectedListener, BarChartGestureListener {
+class DashboardStatsView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : LinearLayout(ctx, attrs), OnChartValueSelectedListener, BarChartGestureListener {
     init {
         View.inflate(context, R.layout.dashboard_stats, this)
     }

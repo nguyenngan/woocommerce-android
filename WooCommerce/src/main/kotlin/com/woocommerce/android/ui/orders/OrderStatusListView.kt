@@ -19,8 +19,10 @@ import org.wordpress.android.fluxc.model.WCOrderStatusModel
  * Custom class that  displays a list of order statuses and allows for
  * selecting a single order status for filtering
  */
-class OrderStatusListView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : ConstraintLayout(ctx, attrs) {
+class OrderStatusListView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : ConstraintLayout(ctx, attrs) {
     init {
         View.inflate(context, R.layout.order_status_list_view, this)
     }
@@ -52,8 +54,9 @@ class OrderStatusListView @JvmOverloads constructor(ctx: Context, attrs: Attribu
         var orderStatusCountText: TextView = view.orderStatusItem_count
     }
 
-    class OrderStatusListAdapter(private val listener: OrderStatusListListener)
-        : RecyclerView.Adapter<OrderStatusListViewHolder>() {
+    class OrderStatusListAdapter(
+        private val listener: OrderStatusListListener
+    ) : RecyclerView.Adapter<OrderStatusListViewHolder>() {
         private val orderStatusList: ArrayList<WCOrderStatusModel> = ArrayList()
 
         fun setOrderStatusList(newList: List<WCOrderStatusModel>) {

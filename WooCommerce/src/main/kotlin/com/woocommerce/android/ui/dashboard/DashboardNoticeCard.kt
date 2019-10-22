@@ -10,8 +10,10 @@ import kotlinx.android.synthetic.main.dashboard_notice.view.*
 /**
  * Dashboard card that displays a notice with a title and a message, as well as an optional action button.
  */
-class DashboardNoticeCard @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : LinearLayout(ctx, attrs) {
+class DashboardNoticeCard @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : LinearLayout(ctx, attrs) {
     init {
         View.inflate(context, R.layout.dashboard_notice, this)
     }

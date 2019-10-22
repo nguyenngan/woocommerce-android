@@ -20,8 +20,10 @@ import kotlinx.android.synthetic.main.view_toggle_single_option.view.*
  *
  * This class could eventually be further genericized for even more flexibility.
  */
-class WCToggleSingleOptionView @JvmOverloads constructor(ctx: Context, attrs: AttributeSet? = null)
-    : LinearLayout(ctx, attrs), Checkable {
+class WCToggleSingleOptionView @JvmOverloads constructor(
+    ctx: Context,
+    attrs: AttributeSet? = null
+) : LinearLayout(ctx, attrs), Checkable {
     init {
         View.inflate(context, R.layout.view_toggle_single_option, this)
         orientation = LinearLayout.VERTICAL
