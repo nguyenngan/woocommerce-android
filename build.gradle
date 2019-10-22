@@ -44,8 +44,7 @@ subprojects {
     configurations.all {
         resolutionStrategy {
             forcedModules = [
-                    "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion",
-                    "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion",
+                    "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",
                     "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
             ]
         }
@@ -97,7 +96,7 @@ task installGitHooks(type: Copy) {
 ext {
     fluxCVersion = '1.5.1-beta-2'
     daggerVersion = '2.24'
-    glideVersion = '4.9.0'
+    glideVersion = '4.10.0'
     testRunnerVersion = '1.0.1'
     espressoVersion = '3.0.1'
     mockitoKotlinVersion = '2.1.0'
