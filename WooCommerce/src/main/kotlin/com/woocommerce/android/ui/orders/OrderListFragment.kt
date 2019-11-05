@@ -110,18 +110,18 @@ class OrderListFragment : TopLevelFragment(), OrderListContract.View,
     }
 
     // region options menu
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.menu_order_list_fragment, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_order_list_fragment, menu)
 
         orderListMenu = menu
-        searchMenuItem = menu?.findItem(R.id.menu_search)
+        searchMenuItem = menu.findItem(R.id.menu_search)
         searchView = searchMenuItem?.actionView as SearchView?
         searchView?.queryHint = getString(R.string.orderlist_search_hint)
 
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu?) {
+    override fun onPrepareOptionsMenu(menu: Menu) {
         refreshOptionsMenu()
         super.onPrepareOptionsMenu(menu)
     }
@@ -144,8 +144,8 @@ class OrderListFragment : TopLevelFragment(), OrderListContract.View,
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
             R.id.menu_search -> {
                 AnalyticsTracker.track(Stat.ORDERS_LIST_MENU_SEARCH_TAPPED)
                 enableSearchListeners()
@@ -167,7 +167,7 @@ class OrderListFragment : TopLevelFragment(), OrderListContract.View,
     }
     // endregion
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
     }
@@ -271,7 +271,7 @@ class OrderListFragment : TopLevelFragment(), OrderListContract.View,
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         checkOrientation()
     }
@@ -433,6 +433,11 @@ class OrderListFragment : TopLevelFragment(), OrderListContract.View,
     override fun refreshFragmentState() {
         if (isActive) {
             refreshOrders()
+        } else {
+            // refresh order status options in the background even when order list is hidden
+            // This is so that when an order status change takes place, we need to refresh the order
+            // status count in the local cache
+            refreshOrderStatusOptions()
         }
     }
 
@@ -631,6 +636,8 @@ class OrderListFragment : TopLevelFragment(), OrderListContract.View,
             disableSearchListeners()
             updateActivityTitle()
             searchMenuItem?.collapseActionView()
+            isRefreshing = true
+            refreshOrderStatusOptions()
             presenter.loadOrders(orderStatusFilter, forceRefresh = true)
         }
     }
@@ -672,6 +679,7 @@ class OrderListFragment : TopLevelFragment(), OrderListContract.View,
         hideOrderStatusListView()
         showTabs(true)
         (activity as? MainActivity)?.showBottomNav()
+        enableToolbarElevation(false)
     }
 
     /**
@@ -688,6 +696,7 @@ class OrderListFragment : TopLevelFragment(), OrderListContract.View,
         displayOrderStatusListView()
         order_status_list_view.updateOrderStatusListView(presenter.getOrderStatusList())
         (activity as? MainActivity)?.hideBottomNav()
+        enableToolbarElevation(true)
     }
 
     /**
@@ -718,7 +727,6 @@ class OrderListFragment : TopLevelFragment(), OrderListContract.View,
 
     /**
      * Method called when user clicks on the back button after selecting an order status.
-     * The order list for the currently displayed tab should be refreshed only if [isFilterEnabled] is true
      * 1. Hide the order status view
      * 2. Enable search again and update the hint query
      */
@@ -732,9 +740,11 @@ class OrderListFragment : TopLevelFragment(), OrderListContract.View,
             searchView?.queryHint = getString(R.string.orderlist_search_hint)
 
             val tabPosition = getTabPosition()
-            orderStatusFilter = tab_layout.getTabAt(tabPosition)?.let { getOrderStatusByTab(it) }
+            orderStatusFilter = tab_layout.getTabAt(tabPosition)?.let {
+                it.select()
+                getOrderStatusByTab(it)
+            }
 
-            presenter.loadOrders(orderStatusFilter, forceRefresh = true)
             (activity as? MainActivity)?.hideBottomNav()
         }
     }
@@ -742,13 +752,11 @@ class OrderListFragment : TopLevelFragment(), OrderListContract.View,
     private fun displayOrderStatusListView() {
         order_status_list_view.visibility = View.VISIBLE
         orderRefreshLayout.isEnabled = false
-        enableToolbarElevation(true)
     }
 
     private fun hideOrderStatusListView() {
         order_status_list_view.visibility = View.GONE
         orderRefreshLayout.isEnabled = true
-        enableToolbarElevation(false)
     }
 
     private fun checkOrientation() {

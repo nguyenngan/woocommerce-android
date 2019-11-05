@@ -268,10 +268,10 @@
     <string name="order_refunds_refund_details">Refund details</string>
     <string name="order_refunds_manual_refund">Manual refund</string>
     <string name="order_refunds_quote_image_description">Quotation icon</string>
-    <string name="order_refunds_manual_refund_progress_message">Your refund for %s is being processed. Please wait…</string>
-    <string name="order_refunds_manual_refund_successful">The refund was successfully submitted.</string>
-    <string name="order_refunds_manual_refund_error">Something went wrong with the refund. Please try again.</string>
-    <string name="order_refunds_refund_manual_refund_note">Currently, only manual refunds are supported. Complete the refund through your payment gateway\'s dashboard, or manually transfer the money to the customer.</string>
+    <string name="order_refunds_amount_refund_progress_message">Your refund for %s is being processed. Please wait…</string>
+    <string name="order_refunds_amount_refund_successful">The refund was successfully submitted.</string>
+    <string name="order_refunds_amount_refund_error">Something went wrong with the refund. Please try again.</string>
+    <string name="order_refunds_refund_manual_refund_note">The payment method does not support automatic refunds. Complete the refund by transferring the money to the customer manually.</string>
     <!--
         Add Order Note
     -->
@@ -643,7 +643,6 @@
     <string name="button_edit_permissions">Edit permissions</string>
 
     <!-- Other -->
-    <string name="shared_element_transition" translatable="false">shared_element</string>
     <string name="error_loading_image">Unable to load image</string>
     <string name="login_invalid_site_url">Please enter a complete website address, like example.com.</string>
     <string name="error_user_username_instead_of_email">Please log in using your WordPress.com username instead of your email address.</string>

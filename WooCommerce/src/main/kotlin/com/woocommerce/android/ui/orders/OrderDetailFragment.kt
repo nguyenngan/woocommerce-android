@@ -32,7 +32,6 @@ import com.woocommerce.android.ui.main.MainActivity
 import com.woocommerce.android.ui.main.MainActivity.NavigationResult
 import com.woocommerce.android.ui.main.MainNavigationRouter
 import com.woocommerce.android.ui.orders.notes.OrderDetailOrderNoteListView.OrderDetailNoteListener
-import com.woocommerce.android.ui.refunds.RefundSummaryFragment
 import com.woocommerce.android.util.CurrencyFormatter
 import com.woocommerce.android.util.WooAnimUtils
 import com.woocommerce.android.widgets.SkeletonView
@@ -51,6 +50,7 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
         const val ARG_DID_MARK_COMPLETE = "did_mark_complete"
         const val STATE_KEY_REFRESH_PENDING = "is-refresh-pending"
         const val REFUND_REQUEST_CODE = 1001
+        private const val REFUNDS_REFRESH_DELAY = 1000L
     }
 
     @Inject lateinit var presenter: OrderDetailContract.Presenter
@@ -82,7 +82,7 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
 
     private val navArgs: OrderDetailFragmentArgs by navArgs()
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
     }
@@ -640,10 +640,7 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
     override fun onNavigationResult(requestCode: Int, result: Bundle) {
         when (requestCode) {
             REFUND_REQUEST_CODE -> {
-                val refundWasSuccessful = result.getBoolean(RefundSummaryFragment.REFUND_SUCCESS_KEY, false)
-                if (refundWasSuccessful) {
-                    presenter.refreshOrderDetail(false)
-                }
+                presenter.refreshOrderAfterDelay(REFUNDS_REFRESH_DELAY)
             }
         }
     }
@@ -664,7 +661,7 @@ class OrderDetailFragment : BaseFragment(), OrderDetailContract.View, OrderDetai
                             orderStatus,
                             false,
                             listener = this)
-                    .also { it.show(fragmentManager, OrderStatusSelectorDialog.TAG) }
+                    .also { it.show(requireFragmentManager(), OrderStatusSelectorDialog.TAG) }
         }
     }
 }

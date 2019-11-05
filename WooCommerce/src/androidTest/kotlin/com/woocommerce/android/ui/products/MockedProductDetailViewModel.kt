@@ -1,33 +1,36 @@
 package com.woocommerce.android.ui.products
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.Transformations
-import com.woocommerce.android.di.UI_THREAD
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
+import com.woocommerce.android.di.ViewModelAssistedFactory
 import com.woocommerce.android.model.Product
 import com.woocommerce.android.tools.NetworkStatus
 import com.woocommerce.android.tools.SelectedSite
+import com.woocommerce.android.util.CoroutineDispatchers
 import com.woocommerce.android.util.CurrencyFormatter
-import kotlinx.coroutines.CoroutineDispatcher
 import org.wordpress.android.fluxc.store.WooCommerceStore
 import java.math.BigDecimal
-import javax.inject.Inject
-import javax.inject.Named
 import kotlin.math.roundToInt
 
-class MockedProductDetailViewModel @Inject constructor(
-    @Named(UI_THREAD) mainDispatcher: CoroutineDispatcher,
+class MockedProductDetailViewModel @AssistedInject constructor(
+    dispatchers: CoroutineDispatchers,
     wooCommerceStore: WooCommerceStore,
     selectedSite: SelectedSite,
     productRepository: ProductDetailRepository,
     networkStatus: NetworkStatus,
-    private val currencyFormatter: CurrencyFormatter
+    private val currencyFormatter: CurrencyFormatter,
+    @Assisted arg0: SavedStateHandle
 ) : ProductDetailViewModel(
-        mainDispatcher,
-        wooCommerceStore,
+        arg0,
+        dispatchers,
         selectedSite,
         productRepository,
         networkStatus,
-        currencyFormatter
+        currencyFormatter,
+        wooCommerceStore
 ) {
     override val productData: LiveData<ProductWithParameters>
         get() = Transformations.map(super.productData) {
@@ -64,4 +67,7 @@ class MockedProductDetailViewModel @Inject constructor(
             currencyFormatter.formatCurrency(amount ?: BigDecimal.ZERO, it)
         } ?: amount.toString()
     }
+
+    @AssistedInject.Factory
+    interface Factory : ViewModelAssistedFactory<MockedProductDetailViewModel>
 }

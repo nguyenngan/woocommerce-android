@@ -8,8 +8,11 @@ import com.woocommerce.android.network.ConnectionChangeReceiver
 import com.woocommerce.android.network.ConnectionChangeReceiver.ConnectionChangeEvent
 import com.woocommerce.android.tools.NetworkStatus
 import com.woocommerce.android.tools.SelectedSite
+import com.woocommerce.android.util.CoroutineDispatchers
 import com.woocommerce.android.util.WooLog
 import com.woocommerce.android.util.WooLog.T
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.wordpress.android.fluxc.Dispatcher
@@ -18,6 +21,7 @@ import org.wordpress.android.fluxc.action.WCOrderAction.UPDATE_ORDER_STATUS
 import org.wordpress.android.fluxc.generated.WCOrderActionBuilder
 import org.wordpress.android.fluxc.model.WCOrderModel
 import org.wordpress.android.fluxc.model.WCOrderStatusModel
+import org.wordpress.android.fluxc.store.WCGatewayStore
 import org.wordpress.android.fluxc.store.WCOrderStore
 import org.wordpress.android.fluxc.store.WCOrderStore.FetchOrderShipmentProvidersPayload
 import org.wordpress.android.fluxc.store.WCOrderStore.FetchOrderStatusOptionsPayload
@@ -34,10 +38,12 @@ import javax.inject.Inject
 @OpenClassOnDebug
 @ActivityScope
 class OrderListPresenter @Inject constructor(
+    private val dispatchers: CoroutineDispatchers,
     private val dispatcher: Dispatcher,
     private val orderStore: WCOrderStore,
     private val selectedSite: SelectedSite,
-    private val networkStatus: NetworkStatus
+    private val networkStatus: NetworkStatus,
+    private val gatewayStore: WCGatewayStore
 ) : OrderListContract.Presenter {
     companion object {
         private val TAG: String = OrderListPresenter::class.java.simpleName
@@ -59,7 +65,9 @@ class OrderListPresenter @Inject constructor(
     private var nextSearchOffset = 0
 
     private var isRefreshingOrderStatusOptions = false
-    override var isShipmentTrackingProviderFetched: Boolean = false
+
+    override var isShipmentTrackingProviderFetched = false
+    override var arePaymentGatewaysFetched = false
 
     override fun takeView(view: OrderListContract.View) {
         orderView = view
@@ -293,15 +301,22 @@ class OrderListPresenter @Inject constructor(
     override fun fetchAndLoadOrdersFromDb(orderStatusFilter: String?, isForceRefresh: Boolean, isFirstRun: Boolean) {
         val orders = fetchOrdersFromDb(orderStatusFilter, isForceRefresh)
         orderView?.let { view ->
+            // if the order list is empty, hide the empty view before displaying new orders
+            view.showEmptyView(false)
+
             val currentOrders = removeFutureOrders(orders)
             if (currentOrders.count() > 0) {
-                view.showEmptyView(false)
-                view.showOrders(currentOrders, orderStatusFilter, isForceRefresh)
+                GlobalScope.launch(dispatchers.io) {
+                    // load shipment tracking providers list only if order list is fetched and displayed.
+                    // for some reason, orderId is required to fetch shipment tracking providers
+                    // so passing the first order in the order list
+                    loadShipmentTrackingProviders(currentOrders[0])
 
-                // load shipment tracking providers list only if order list is fetched and displayed.
-                // for some reason, orderId is required to fetch shipment tracking providers
-                // so passing the first order in the order list
-                loadShipmentTrackingProviders(currentOrders[0])
+                    // prefetch all gateways whenever the site changes
+                    loadPaymentGateways()
+                }
+
+                view.showOrders(currentOrders, orderStatusFilter, isForceRefresh)
             } else if (!networkStatus.isConnected() || !view.isRefreshing) {
                 // if the device is offline or has not yet been initialised and has no cached orders to display,
                 // show the empty view until internet connection is back again.
@@ -337,6 +352,17 @@ class OrderListPresenter @Inject constructor(
         if (!isShipmentTrackingProviderFetched && networkStatus.isConnected()) {
             val payload = FetchOrderShipmentProvidersPayload(selectedSite.get(), order)
             dispatcher.dispatch(WCOrderActionBuilder.newFetchOrderShipmentProvidersAction(payload))
+        }
+    }
+
+    override suspend fun loadPaymentGateways() {
+        if (!arePaymentGatewaysFetched && networkStatus.isConnected()) {
+            val result = gatewayStore.fetchAllGateways(selectedSite.get())
+            if (result.isError) {
+                WooLog.e(T.ORDERS, "${result.error.type.name}: ${result.error.message}")
+            } else {
+                arePaymentGatewaysFetched = true
+            }
         }
     }
 
