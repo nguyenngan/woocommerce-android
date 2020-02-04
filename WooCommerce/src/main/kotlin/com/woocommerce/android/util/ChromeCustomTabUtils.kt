@@ -13,6 +13,7 @@ import androidx.browser.customtabs.CustomTabsService.KEY_URL
 import androidx.browser.customtabs.CustomTabsServiceConnection
 import androidx.browser.customtabs.CustomTabsSession
 import androidx.core.content.ContextCompat
+import com.woocommerce.android.AppPrefs
 import com.woocommerce.android.R
 import org.wordpress.android.util.ToastUtils
 
@@ -103,11 +104,19 @@ object ChromeCustomTabUtils {
     }
 
     private fun createIntent(context: Context, tabSession: CustomTabsSession? = null): CustomTabsIntent {
+        val colorScheme = when (AppPrefs.getAppTheme()) {
+            ThemeOption.LIGHT -> CustomTabsIntent.COLOR_SCHEME_LIGHT
+            ThemeOption.DARK -> CustomTabsIntent.COLOR_SCHEME_DARK
+            ThemeOption.DEFAULT -> CustomTabsIntent.COLOR_SCHEME_SYSTEM
+        }
+
         val intent = CustomTabsIntent.Builder(tabSession)
                 .setToolbarColor(ContextCompat.getColor(context, R.color.color_primary_surface))
                 .addDefaultShareMenuItem()
                 .setShowTitle(true)
+                .setColorScheme(colorScheme)
                 .build()
+
         intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
         return intent
     }
